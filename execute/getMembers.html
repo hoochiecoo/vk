@@ -1,0 +1,59 @@
+<html>
+<head>
+  <title>Get Group Info</title>
+</head>
+<body>
+  <h1>Get Group Info</h1>
+  <div id="result"></div>
+<script type="text/javascript">
+  function getAccessToken() {
+    var cookies = document.cookie.split('; ');
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i].split('=');
+      if (cookie[0] == 'access_token') {
+        return cookie[1];
+      }
+    }
+    return null;
+  }
+
+  function getGroupMembers(group_id, access_token) {
+    // Define the code to execute
+    var code = `
+      var group_id = ${group_id};
+      var members = API.groups.getMembers({"group_id": group_id}).items;
+      return members;
+    `;
+
+    // Create a new script element to handle the response
+    var script = document.createElement('script');
+    script.src = 'https://api.vk.com/method/execute?code=' + encodeURIComponent(code) + '&v=5.131&access_token=' + access_token + '&callback=processResponse';
+    document.head.appendChild(script);
+  }
+
+  // Define the function to handle the response
+  function processResponse(response) {
+    if (response.error) {
+      document.getElementById('result').textContent = 'Error: ' + response.error.error_msg;
+    } else {
+      // Output the members list
+      document.getElementById('result').textContent = JSON.stringify(response.response);
+    }
+  }
+
+  // Get the Access Token from the browser cookies
+  var access_token = getAccessToken();
+
+  // Get the value of the 'group_id' parameter from the URL query string
+  const searchParams = new URLSearchParams(window.location.search);
+  const group_id = searchParams.get('group_id');
+
+  // If the Access Token and Group ID were obtained successfully, call the function to get group members using the execute method
+  if (access_token && group_id) {
+    getGroupMembers(group_id, access_token);
+  } else {
+    document.getElementById('result').textContent = 'Access Token or Group ID not found';
+  }
+</script>
+</body>
+</html>
