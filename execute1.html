@@ -1,0 +1,58 @@
+<html>
+<head>
+  <title>Execute VK API Method</title>
+</head>
+<body>
+  <h1>Execute VK API Method</h1>
+  <div>
+    <label for="code">Code:</label>
+    <textarea id="code" name="code"></textarea>
+  </div>
+  <div>
+    <button onclick="executeCode()">Send</button>
+  </div>
+  <div id="result"></div>
+  <script type="text/javascript">
+    function getAccessToken() {
+      var cookies = document.cookie.split('; ');
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i].split('=');
+        if (cookie[0] == 'access_token') {
+          return cookie[1];
+        }
+      }
+      return null;
+    }
+
+    function executeCode() {
+      // Get the Access Token from the browser cookies
+      var access_token = getAccessToken();
+      if (!access_token) {
+        document.getElementById('result').textContent = 'Access Token not found';
+        return;
+      }
+
+      // Get the code to execute from the textarea
+      var code = document.getElementById('code').value;
+      if (!code) {
+        document.getElementById('result').textContent = 'Code cannot be empty';
+        return;
+      }
+
+      // Create a new script element to handle the response
+      var script = document.createElement('script');
+      script.src = 'https://api.vk.com/method/execute?code=' + encodeURIComponent(code) + '&v=5.131&access_token=' + access_token + '&callback=processResponse';
+      document.head.appendChild(script);
+    }
+
+    function processResponse(response) {
+      if (response.error) {
+        document.getElementById('result').textContent = 'Error: ' + response.error.error_msg;
+      } else {
+        // Output the response data
+        document.getElementById('result').textContent = JSON.stringify(response.response);
+      }
+    }
+  </script>
+</body>
+</html>
