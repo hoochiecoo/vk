@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Group Info</title>
+</head>
+<body>
+  <h1>Get Group Info</h1>
+  <div id="result"></div>
+<script type="text/javascript">
+// Function to get Access Token from cookies
+function getAccessToken() {
+  var cookies = document.cookie.split('; ');
+  for (var i = 0; i < cookies.length; i++) {
+    var cookie = cookies[i].split('=');
+    if (cookie[0] == 'access_token') {
+      return cookie[1];
+    }
+  }
+  return null;
+}
+
+// Get Group ID from query params
+const searchParams = new URLSearchParams(window.location.search);
+const group_id = searchParams.get('group_id');
+
+// Create list to store album IDs
+let albumIds = [];
+
+// If Access Token and Group ID were obtained successfully, make a JSONP request to the VK API to get album IDs
+if (getAccessToken() && group_id) {
+  const apiUrl = `https://api.vk.com/method/photos.getAlbums?owner_id=-${group_id}&need_system=1&access_token=${getAccessToken()}&callback=processResponse`;
+
+  // Create a script element and set its src attribute to the API URL
+  const script = document.createElement('script');
+  script.src = apiUrl;
+
+  // Define the processResponse function that will be called when the API response is received
+  window.processResponse = function(response) {
+    // Save all album IDs to the albumIds list
+    albumIds = response.response.items.map(item => item.id);
+
+    // Show a random photo from a random album
+    const randomAlbumId = albumIds[Math.floor(Math.random() * albumIds.length)];
+    const randomPhotoUrl = `https://api.vk.com/method/photos.get?owner_id=-${group_id}&album_id=${randomAlbumId}&rev=1&count=1&access_token=${getAccessToken()}&callback=processRandomPhoto`;
+    const randomPhotoScript = document.createElement('script');
+    randomPhotoScript.src = randomPhotoUrl;
+    document.body.appendChild(randomPhotoScript);
+
+    // Add an infinite scroll button to the page
+    const button = document.createElement('button');
+    button.textContent = 'Load More';
+    button.addEventListener('click', loadMorePhotos);
+    document.body.appendChild(button);
+  };
+
+  // Define the processRandomPhoto function that will be called when a random photo is retrieved from the API
+  window.processRandomPhoto = function(response) {
+    const photo = response.response.items[0];
+
+    // Create an image element to display the photo
+    const image = document.createElement('img');
+    image.src = photo.sizes[photo.sizes.length - 1].url;
+    document.body.appendChild(image);
+  };
+
+  // Append the script element to the page to make the API request
+  document.body.appendChild(script);
+} else {
+  document.getElementById('result').textContent = 'Access Token or Group ID not found';
+}
+
+// Function to load more photos when the infinite scroll button is clicked
+function loadMorePhotos() {
+  const randomAlbumId = albumIds[Math.floor(Math.random() * albumIds.length)];
+  const randomPhotoUrl = `https://api.vk.com/method/photos.get?owner_id=-${group_id}&album_id=${randomAlbumId}&rev=1&count=1&access_token=${getAccessToken()}&callback=processRandomPhoto`;
+  const randomPhotoScript = document.createElement('script');
+  randomPhotoScript.src = randomPhotoUrl;
+  document.body.appendChild(randomPhotoScript);
+}
+
+</script>
+
+</body>
+</html>
