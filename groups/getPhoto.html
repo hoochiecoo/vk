@@ -17,6 +17,20 @@ function getAccessToken() {
   }
   return null;
 }
+  
+// Получаем Access Token из куков браузера
+var access_token = getAccessToken();
+
+// Получаем значение параметра 'group_id' из строки запроса URL
+const searchParams = new URLSearchParams(window.location.search);
+const group_id = searchParams.get('group_id');
+
+// Если Access Token и Group ID были получены успешно, вызываем функцию для получения информации об альбомах группы VK API
+if (access_token && group_id) {
+  getGroupAlbums(group_id, access_token);
+} else {
+  document.getElementById('result').textContent = 'Access Token or Group ID not found';
+}
 
 function getGroupAlbums(group_id, access_token) {
   // Создаем элемент <script> и добавляем его в <head> документа
@@ -49,19 +63,7 @@ function processPhotosResponse(response) {
   document.getElementById('result').innerHTML = '<img src="' + photoUrl + '" />';
 }
 
-// Получаем Access Token из куков браузера
-var access_token = getAccessToken();
 
-// Получаем значение параметра 'group_id' из строки запроса URL
-const searchParams = new URLSearchParams(window.location.search);
-const group_id = searchParams.get('group_id');
-
-// Если Access Token и Group ID были получены успешно, вызываем функцию для получения информации об альбомах группы VK API
-if (access_token && group_id) {
-  getGroupAlbums(group_id, access_token);
-} else {
-  document.getElementById('result').textContent = 'Access Token or Group ID not found';
-}
 
 </script>
 
