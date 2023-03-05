@@ -21,25 +21,27 @@ function getAccessToken() {
 // Get Access Token from cookies
 var access_token = getAccessToken();
 
-// Get post ID from the URL
+// Get group ID and post ID from the URL
+var group_id = null;
 var post_id = null;
 var url = window.location.href;
 var matches = url.match(/vk\.com\/wall(-?\d+)_(\d+)/i);
 if (matches && matches.length == 3) {
-  post_id = matches[1] + '_' + matches[2];
+  group_id = matches[1];
+  post_id = matches[2];
 }
 
-// If Access Token and Post ID were successfully obtained, call the function to get the number of likes on the post from VK API
-if (access_token && post_id) {
-  getPostLikes(post_id, access_token);
+// If Access Token, Group ID and Post ID were successfully obtained, call the function to get the number of likes on the post from VK API
+if (access_token && group_id && post_id) {
+  getPostLikes(group_id, post_id, access_token);
 } else {
-  document.getElementById('result').textContent = 'Access Token or Post ID not found';
+  document.getElementById('result').textContent = 'Access Token, Group ID or Post ID not found';
 }
 
-function getPostLikes(post_id, access_token) {
+function getPostLikes(group_id, post_id, access_token) {
   // Create a <script> element and add it to the <head> of the document
   var script = document.createElement('script');
-  script.src = 'https://api.vk.com/method/likes.getList?type=post&owner_id=-GROUP_OR_USER_ID&item_id=' + post_id + '&v=5.131&access_token=' + access_token + '&callback=processLikesResponse';
+  script.src = 'https://api.vk.com/method/likes.getList?type=post&owner_id=' + group_id + '&item_id=' + post_id + '&v=5.131&access_token=' + access_token + '&callback=processLikesResponse';
   document.head.appendChild(script);
 }
 
