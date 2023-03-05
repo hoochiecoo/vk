@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Group Info</title>
+</head>
+<body>
+  <h1>Get Group Info</h1>
+  <div id="result"></div>
+<script type="text/javascript">
+function getAccessToken() {
+  var cookies = document.cookie.split('; ');
+  for (var i = 0; i < cookies.length; i++) {
+    var cookie = cookies[i].split('=');
+    if (cookie[0] == 'access_token') {
+      return cookie[1];
+    }
+  }
+  return null;
+}
+  
+// Получаем Access Token из куков браузера
+var access_token = getAccessToken();
+
+// Получаем значение параметра 'group_id' из строки запроса URL
+const searchParams = new URLSearchParams(window.location.search);
+const group_id = searchParams.get('group_id');
+
+// Если Access Token и Group ID были получены успешно, вызываем функцию для получения информации об альбомах группы VK API
+if (access_token && group_id) {
+  getGroupTopics(group_id, access_token);
+} else {
+  document.getElementById('result').textContent = 'Access Token or Group ID not found';
+}
+
+
+function getGroupTopics(group_id, access_token) {
+  // Создаем элемент <script> и добавляем его в <head> документа
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/board.getTopics?group_id=' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processTopicsResponse';
+  document.head.appendChild(script);
+}
+
+
+function getRandomPhotoFromAlbum(album_id, access_token) {
+  // Получаем список всех фотографий в альбоме
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/photos.get?album_id=' + album_id + '&owner_id=-' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processPhotosResponse';
+  document.head.appendChild(script);
+    // Reload processPhotosResponse every 2 seconds
+  setInterval(function() {
+    getRandomPhotoFromAlbum(album_id, access_token);
+  }, 5000);
+}
+
+function processTopicsResponse(response) {
+  // Выбираем случайную тему из полученного списка и получаем ее краткое содержание
+  var topics = response.response.items;
+  var randomTopicIndex = Math.floor(Math.random() * topics.length);
+  var randomTopic = topics[randomTopicIndex];
+  var topic_id = randomTopic.id;
+  var group_id = randomTopic.group_id;
+  var topic_title = randomTopic.title;
+  
+  // Получаем краткое содержание выбранной темы
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/board.getComments?group_id=' + group_id + '&topic_id=' + topic_id + '&count=1&extended=0&v=5.131&access_token=' + access_token + '&callback=processCommentsResponse';
+  document.head.appendChild(script);
+}
+
+
+function processCommentsResponse(response) {
+  // Получаем краткое содержание темы
+  var comments = response.response.items;
+  var topic_summary = comments[0].text;
+  
+  // Выводим название темы и ее краткое содержание на страницу
+  var result = '<h2>' + topic_title + '</h2><p>' + topic_summary + '</p>';
+  document.getElementById('result').innerHTML = result;
+}
+
+
+
+
+</script>
+
+</body>
+</html>
