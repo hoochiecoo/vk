@@ -42,7 +42,7 @@ function getGroupAlbums(group_id, access_token) {
 function getRandomPhotoFromAlbum(album_id, access_token) {
   // Получаем список всех фотографий в альбоме
   var script = document.createElement('script');
-  script.src = 'https://api.vk.com/method/photos.get?album_id=' + album_id + 'owner_id=' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processPhotosResponse';
+  script.src = 'https://api.vk.com/method/photos.get?album_id=' + album_id + 'owner_id=-' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processPhotosResponse';
   document.head.appendChild(script);
 }
 
