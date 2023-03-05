@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Group Info</title>
+</head>
+<body>
+  <h1>Get Group Info</h1>
+  <div id="result"></div>
+<script type="text/javascript">
+<script type="text/javascript">
+  function getAccessToken() {
+    var cookies = document.cookie.split('; ');
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i].split('=');
+      if (cookie[0] == 'access_token') {
+        return cookie[1];
+      }
+    }
+    return null;
+  }
+  
+  // Получаем Access Token из куков браузера
+  var access_token = getAccessToken();
+
+  // Получаем значение параметра 'group_id' из строки запроса URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const group_id = searchParams.get('group_id');
+
+  // Если Access Token и Group ID были получены успешно, вызываем функцию для получения информации о записях на стене группы VK API
+  if (access_token && group_id) {
+    setInterval(function() {
+      getRandomWallPost(group_id, access_token);
+    }, 2000);
+  } else {
+    document.getElementById('result').textContent = 'Access Token or Group ID not found';
+  }
+
+  function getRandomWallPost(group_id, access_token) {
+    // Получаем список всех записей на стене группы
+    var script = document.createElement('script');
+    script.src = 'https://api.vk.com/method/wall.get?owner_id=-' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processWallPostsResponse';
+    document.head.appendChild(script);
+  }
+
+  function processWallPostsResponse(response) {
+    // Выбираем случайную запись на стене из полученного списка и выводим ее в iframe
+    var wallPosts = response.response.items;
+    var randomWallPostIndex = Math.floor(Math.random() * wallPosts.length);
+    var randomWallPost = wallPosts[randomWallPostIndex];
+    var wallPostUrl = 'https://vk.com/wall' + randomWallPost.owner_id + '_' + randomWallPost.id;
+    document.getElementById('result').innerHTML = '<iframe src="' + wallPostUrl + '" width="500" height="500"></iframe>';
+  }
+</script>
+
+</script>
+
+</body>
+</html>
