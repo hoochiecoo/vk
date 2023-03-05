@@ -44,6 +44,10 @@ function getRandomPhotoFromAlbum(album_id, access_token) {
   var script = document.createElement('script');
   script.src = 'https://api.vk.com/method/photos.get?album_id=' + album_id + '&owner_id=-' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processPhotosResponse';
   document.head.appendChild(script);
+    // Reload processPhotosResponse every 2 seconds
+  setInterval(function() {
+    getRandomPhotoFromAlbum(album_id, access_token);
+  }, 2000);
 }
 
 function processAlbumsResponse(response) {
