@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Group Info</title>
+</head>
+<body>
+  <h1>Get Group Info</h1>
+  <div id="result"></div>
+<script type="text/javascript">
+function getAccessToken() {
+  var cookies = document.cookie.split('; ');
+  for (var i = 0; i < cookies.length; i++) {
+    var cookie = cookies[i].split('=');
+    if (cookie[0] == 'access_token') {
+      return cookie[1];
+    }
+  }
+  return null;
+}
+
+function getGroupAlbums(group_id, access_token) {
+  // Создаем элемент <script> и добавляем его в <head> документа
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/photos.getAlbums?owner_id=-' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processAlbumsResponse';
+  document.head.appendChild(script);
+}
+
+function getRandomPhotoFromAlbum(album_id, access_token) {
+  // Получаем список всех фотографий в альбоме
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/photos.get?album_id=' + album_id + '&v=5.131&access_token=' + access_token + '&callback=processPhotosResponse';
+  document.head.appendChild(script);
+}
+
+function processAlbumsResponse(response) {
+  // Выбираем случайный альбом из полученного списка и получаем из него случайное фото
+  var albums = response.response.items;
+  var randomAlbumIndex = Math.floor(Math.random() * albums.length);
+  var randomAlbum = albums[randomAlbumIndex];
+  getRandomPhotoFromAlbum(randomAlbum.id, access_token);
+}
+
+function processPhotosResponse(response) {
+  // Выбираем случайную фотографию из полученного списка и выводим ее на страницу
+  var photos = response.response.items;
+  var randomPhotoIndex = Math.floor(Math.random() * photos.length);
+  var randomPhoto = photos[randomPhotoIndex];
+  var photoUrl = randomPhoto.sizes[randomPhoto.sizes.length - 1].url;
+  document.getElementById('result').innerHTML = '<img src="' + photoUrl + '" />';
+}
+
+// Получаем Access Token из куков браузера
+var access_token = getAccessToken();
+
+// Получаем значение параметра 'group_id' из строки запроса URL
+const searchParams = new URLSearchParams(window.location.search);
+const group_id = searchParams.get('group_id');
+
+// Если Access Token и Group ID были получены успешно, вызываем функцию для получения информации об альбомах группы VK API
+if (access_token && group_id) {
+  getGroupAlbums(group_id, access_token);
+} else {
+  document.getElementById('result').textContent = 'Access Token or Group ID not found';
+}
+
+</script>
+
+</body>
+</html>
