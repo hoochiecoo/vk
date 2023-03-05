@@ -59,7 +59,8 @@ function processPhotosResponse(response) {
   var photos = response.response.items;
   var randomPhotoIndex = Math.floor(Math.random() * photos.length);
   var randomPhoto = photos[randomPhotoIndex];
-  var photoUrl = randomPhoto.sizes[randomPhoto.sizes.length - 1].url;
+  var photo = randomPhoto.sizes.find(size => size.type === 'z');
+  var photoUrl = photo.url;
   document.getElementById('result').innerHTML = '<img src="' + photoUrl + '" />';
 }
 
