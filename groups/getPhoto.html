@@ -47,7 +47,7 @@ function getRandomPhotoFromAlbum(album_id, access_token) {
     // Reload processPhotosResponse every 2 seconds
   setInterval(function() {
     getRandomPhotoFromAlbum(album_id, access_token);
-  }, 2000);
+  }, 5000);
 }
 
 function processAlbumsResponse(response) {
