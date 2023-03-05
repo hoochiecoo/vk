@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Group Info</title>
+</head>
+<body>
+  <h1>Get Group Info</h1>
+  <div id="result"></div>
+<script type="text/javascript">
+function getAccessToken() {
+  var cookies = document.cookie.split('; ');
+  for (var i = 0; i < cookies.length; i++) {
+    var cookie = cookies[i].split('=');
+    if (cookie[0] == 'access_token') {
+      return cookie[1];
+    }
+  }
+  return null;
+}
+
+// Get Access Token from cookies
+var access_token = getAccessToken();
+
+// Get post ID from the URL
+var post_id = null;
+var url = window.location.href;
+var matches = url.match(/vk\.com\/wall(-?\d+)_(\d+)/i);
+if (matches && matches.length == 3) {
+  post_id = matches[1] + '_' + matches[2];
+}
+
+// If Access Token and Post ID were successfully obtained, call the function to get the number of likes on the post from VK API
+if (access_token && post_id) {
+  getPostLikes(post_id, access_token);
+} else {
+  document.getElementById('result').textContent = 'Access Token or Post ID not found';
+}
+
+function getPostLikes(post_id, access_token) {
+  // Create a <script> element and add it to the <head> of the document
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/likes.getList?type=post&owner_id=-GROUP_OR_USER_ID&item_id=' + post_id + '&v=5.131&access_token=' + access_token + '&callback=processLikesResponse';
+  document.head.appendChild(script);
+}
+
+function processLikesResponse(response) {
+  // Get the number of likes on the post and display it on the page
+  var likesCount = response.response.count;
+  document.getElementById('result').textContent = 'Likes: ' + likesCount;
+}
+
+</script>
+
+</body>
+</html>
