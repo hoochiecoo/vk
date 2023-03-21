@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Get Group Info</title>
+</head>
+<body>
+  <h1>Get Group Info</h1>
+  <div id="result"></div>
+<button onclick="getAllTopics()">Get all topics in group</button>
+<input type="text" id="topic_id_input">
+<button onclick="getTopicSummary()">Get summary of topic by ID</button>
+<input type="text" id="topic_comment_input">
+<input type="text" id="comment_text_input">
+<button onclick="writeCommentToTopic()">Write comment to topic by ID</button>
+
+<script type="text/javascript">
+function getAccessToken() {
+  var cookies = document.cookie.split('; ');
+  for (var i = 0; i < cookies.length; i++) {
+    var cookie = cookies[i].split('=');
+    if (cookie[0] == 'access_token') {
+      return cookie[1];
+    }
+  }
+  return null;
+}
+  
+// Получаем Access Token из куков браузера
+var access_token = getAccessToken();
+
+// Получаем значение параметра 'group_id' из строки запроса URL
+const searchParams = new URLSearchParams(window.location.search);
+const group_id = searchParams.get('group_id');
+
+// Если Access Token и Group ID были получены успешно, вызываем функцию для получения списка обсуждений группы VK API
+if (access_token && group_id) {
+  getGroupTopics(group_id, access_token);
+} else {
+  document.getElementById('result').textContent = 'Access Token or Group ID not found';
+}
+
+function getGroupTopics(group_id, access_token) {
+  // Создаем элемент <script> и добавляем его в <head> документа
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/board.getTopics?group_id=' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processTopicsResponse';
+  document.head.appendChild(script);
+}
+
+function getRandomTopicFromList(topics) {
+  // Выбираем случайное обсуждение из полученного списка и выводим его название и описание на страницу
+  var randomTopicIndex = Math.floor(Math.random() * topics.length);
+  var randomTopic = topics[randomTopicIndex];
+  document.getElementById('result').innerHTML = '<h3>' + randomTopic.title + '</h3><p>' + randomTopic.comments + ' comments</p><p>' + randomTopic.description + '</p>';
+}
+
+function processTopicsResponse(response) {
+  // Получаем список всех обсуждений группы и выбираем случайное обсуждение из них
+  var topics = response.response.items;
+  getRandomTopicFromList(topics);
+}
+
+// Get all topics in group
+function getAllTopics() {
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/board.getTopics?group_id=' + group_id + '&v=5.131&access_token=' + access_token + '&callback=processTopicsResponse';
+  document.head.appendChild(script);
+}
+
+// Get summary of topic by ID
+function getTopicSummary() {
+  var topic_id = document.getElementById('topic_id_input').value;
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/board.getComments?group_id=' + group_id + '&topic_id=' + topic_id + '&v=5.131&access_token=' + access_token + '&callback=processTopicSummaryResponse';
+  document.head.appendChild(script);
+}
+
+// Write comment to topic by ID
+function writeCommentToTopic() {
+  var topic_id = document.getElementById('topic_comment_input').value;
+  var comment_text = document.getElementById('comment_text_input').value;
+  var script = document.createElement('script');
+  script.src = 'https://api.vk.com/method/board.createComment?group_id=' + group_id + '&topic_id=' + topic_id + '&text=' + encodeURIComponent(comment_text) + '&v=5.131&access_token=' + access_token + '&callback=processCommentResponse';
+  document.head.appendChild(script);
+}
+
+
+
+
+
+</script>
+
+</body>
+</html>
