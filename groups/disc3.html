@@ -55,11 +55,14 @@ function processTopicNamesResponse(response) {
   }
 
   var topics = response.response.items;
-  var topicNames = topics.map(function(topic) {
-    return topic.title;
+  var topicNamesWithIds = topics.map(function(topic) {
+    return topic.id + ': ' + topic.title;
   });
 
-  document.getElementById('result').textContent = topicNames.join('\n');
+  var topicNamesWithIdsString = topicNamesWithIds.join('\n');
+  document.getElementById('result').textContent = topicNamesWithIdsString;
+
+  return topicNamesWithIds;
 }
 
 
